@@ -1,12 +1,28 @@
+import logging
 from fastapi import FastAPI, Depends, HTTPException
 from mangum import Mangum
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from models import SessionLocal, Article
+from sqlalchemy import create_engine, text
+from models import SessionLocal, Article, Base, engine
 from pydantic import BaseModel, Json
 from typing import Optional
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 load_dotenv()
+
+# Log the database URL
+logger.info(f"Connecting to database at: {engine.url}")
+
+# Create the schema if it does not exist
+# with engine.connect() as connection:
+#     connection.execute(text("CREATE SCHEMA IF NOT EXISTS portfolio"))
+#
+# # Create the database tables
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -54,6 +70,27 @@ def read_root():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/databases")
+def list_databases():
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT datname FROM pg_database WHERE datistemplate = false;"))
+        databases = [row[0] for row in result]
+    return {"databases": databases}
+
+@app.get("/schemas")
+def list_schemas():
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT schema_name FROM information_schema.schemata;"))
+        schemas = [row[0] for row in result]
+    return {"schemas": schemas}
+
+@app.get("/tables")
+def list_tables():
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT table_schema, table_name FROM information_schema.tables WHERE table_type = 'BASE TABLE';"))
+        tables = [{"schema": row[0], "table": row[1]} for row in result]
+    return {"tables": tables}
 
 @app.post("/articles/", response_model=ArticleCreate)
 def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
