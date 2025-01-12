@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, text
 from models import SessionLocal, Article, Base, engine
 from pydantic import BaseModel, Json
-from typing import Optional
+from typing import Optional, Dict, List
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,10 +31,10 @@ class ArticleCreate(BaseModel):
     version: int
     sort_order: int
     type: str
-    content: Json
+    content: Dict[str, str]  # Use Dict to parse JSON object
     category: str
     subcategory: str
-    tags: Json
+    tags: List[str]  # Use List to parse JSON array
     status: str
     created_by: str
     updated_by: str
