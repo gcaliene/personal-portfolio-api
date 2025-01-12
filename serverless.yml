@@ -1,0 +1,24 @@
+service: personal-portfolio-api
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  environment:
+    DATABASE_URL: ${ssm:/path/to/your/database_url}
+    SECRET_KEY: ${ssm:/path/to/your/secret_key}
+
+functions:
+  app:
+    handler: main.handler
+    events:
+      - http:
+          path: /
+          method: get
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
