@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from mangum import Mangum
 from dotenv import load_dotenv
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from models import SessionLocal, Article, Base, engine
 from pydantic import BaseModel, Json
 from typing import Optional, Dict, List
@@ -14,15 +14,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-# Log the database URL
 logger.info(f"Connecting to database at: {engine.url}")
-
-# Create the schema if it does not exist
-# with engine.connect() as connection:
-#     connection.execute(text("CREATE SCHEMA IF NOT EXISTS portfolio"))
-#
-# # Create the database tables
-# Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -92,24 +84,23 @@ def list_tables():
         tables = [{"schema": row[0], "table": row[1]} for row in result]
     return {"tables": tables}
 
-@app.post("/articles/", response_model=ArticleCreate)
+@app.post("/article/", response_model=ArticleCreate)
 def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
     db_article = Article(**article.model_dump())
     db.add(db_article)
     db.commit()
     db.refresh(db_article)
     return db_article
-
-@app.get("/articles/{article_id}", response_model=ArticleCreate)
-def read_article(article_id: int, db: Session = Depends(get_db)):
-    db_article = db.query(Article).filter(Article.id == article_id).first()
+@app.get("/article/{url}", response_model=ArticleCreate)
+def read_article(url: str, db: Session = Depends(get_db)):
+    db_article = db.query(Article).filter(Article.url == url).first()
     if db_article is None:
         raise HTTPException(status_code=404, detail="Article not found")
     return db_article
 
-@app.put("/articles/{article_id}", response_model=ArticleCreate)
-def update_article(article_id: int, article: ArticleUpdate, db: Session = Depends(get_db)):
-    db_article = db.query(Article).filter(Article.id == article_id).first()
+@app.put("/article/{url}", response_model=ArticleCreate)
+def update_article(url: str, article: ArticleUpdate, db: Session = Depends(get_db)):
+    db_article = db.query(Article).filter(Article.url == url).first()
     if db_article is None:
         raise HTTPException(status_code=404, detail="Article not found")
     for key, value in article.model_dump(exclude_unset=True).items():
@@ -118,13 +109,18 @@ def update_article(article_id: int, article: ArticleUpdate, db: Session = Depend
     db.refresh(db_article)
     return db_article
 
-@app.delete("/articles/{article_id}")
-def delete_article(article_id: int, db: Session = Depends(get_db)):
-    db_article = db.query(Article).filter(Article.id == article_id).first()
+@app.delete("/article/{url}")
+def delete_article(url: str, db: Session = Depends(get_db)):
+    db_article = db.query(Article).filter(Article.url == url).first()
     if db_article is None:
         raise HTTPException(status_code=404, detail="Article not found")
     db.delete(db_article)
     db.commit()
     return {"detail": "Article deleted"}
+
+@app.get("/articles/latest", response_model=List[ArticleCreate])
+def get_latest_articles(db: Session = Depends(get_db)):
+    latest_articles = db.query(Article).order_by(Article.created_at.desc()).limit(10).all()
+    return latest_articles
 
 handler = Mangum(app)
