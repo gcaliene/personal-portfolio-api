@@ -38,7 +38,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Authenticate with Serverless Framework
-        run: serverless login --org ${{ env.ORGANIZATION_NAME }} --app personal-portfolio-api
+        run: serverless login --org ${{ env.ORGANIZATION_NAME }} --app personal-portfolio-api --key ${{ secrets.SERVERLESS_ACCESS_KEY }}
         env:
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
 
