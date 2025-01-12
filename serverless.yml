@@ -15,6 +15,33 @@ functions:
       - http:
           path: /
           method: get
+      - http:
+          path: /health
+          method: get
+      - http:
+          path: /databases
+          method: get
+      - http:
+          path: /schemas
+          method: get
+      - http:
+          path: /tables
+          method: get
+      - http:
+          path: /article
+          method: post
+      - http:
+          path: /article/{url}
+          method: get
+      - http:
+          path: /article/{url}
+          method: put
+      - http:
+          path: /article/{url}
+          method: delete
+      - http:
+          path: /articles/latest
+          method: get
 
 plugins:
   - serverless-python-requirements
