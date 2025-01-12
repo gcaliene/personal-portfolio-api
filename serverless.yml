@@ -3,7 +3,7 @@ service: personal-portfolio-api
 provider:
   name: aws
   runtime: python3.9
-  region: us-east-1
+  region: us-east-2
   environment:
     DATABASE_URL: ${env:DATABASE_URL}
     SECRET_KEY: ${env:SECRET_KEY}
