@@ -5,8 +5,8 @@ provider:
   runtime: python3.9
   region: us-east-1
   environment:
-    DATABASE_URL: ${ssm:/path/to/your/database_url}
-    SECRET_KEY: ${ssm:/path/to/your/secret_key}
+    DATABASE_URL: ${env:DATABASE_URL}
+    SECRET_KEY: ${env:SECRET_KEY}
 
 functions:
   app:
