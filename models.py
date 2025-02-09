@@ -1,9 +1,13 @@
+import os
 from sqlalchemy import Column, Integer, String, JSON, TIMESTAMP, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
+from dotenv import load_dotenv
 
-DATABASE_URL = "postgresql://postgres:password@db:5432/postgres"
+load_dotenv()
+
+DATABASE_URL = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:5432/{os.getenv('POSTGRES_DB')}"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

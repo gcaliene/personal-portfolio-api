@@ -18,6 +18,11 @@ logger.info(f"Connecting to database at: {engine.url}")
 
 app = FastAPI()
 
+@app.on_event("startup")
+async def startup():
+    # Create all tables
+    Base.metadata.create_all(bind=engine)
+
 class ArticleCreate(BaseModel):
     url: str
     version: int
