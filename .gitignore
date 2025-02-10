@@ -182,3 +182,7 @@ node_modules/
 
 # Serverless
 .serverless/
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
