@@ -4,19 +4,29 @@ provider:
   name: aws
   runtime: python3.9
   region: us-east-2
+  stage: ${opt:stage, 'dev'}
   environment:
-    STAGE: ${opt:stage, 'dev'}
+    STAGE: ${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "*"
 
 package:
   patterns:
     - '!node_modules/**'
-    - '!frontend/**'
     - '!.git/**'
-    - '!.env'
-    - '!.env.*'
-    - '!docker*'
-    - '!*.db'
+    - '!.env*'
     - '!tests/**'
+    - '!.serverless/**'
+    - '!__pycache__/**'
+    - '!.pytest_cache/**'
+    - '!*.db'
 
 functions:
   api:

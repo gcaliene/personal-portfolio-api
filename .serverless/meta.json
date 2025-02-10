@@ -18,5 +18,15 @@
     "serviceProviderAwsCfStackUpdated": null,
     "serviceProviderAwsCfStackStatus": null,
     "serviceProviderAwsCfStackOutputs": null
+  },
+  "personal-portfolio-api": {
+    "versionFramework": "4.4.18",
+    "serviceProviderName": "aws",
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.9",
+      "stage": "prod",
+      "region": "us-east-2"
+    }
   }
 }
