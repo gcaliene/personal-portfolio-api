@@ -171,3 +171,11 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+venv/
+*.db
+__pycache__/
+.env
+.env.*
+.serverless/
+node_modules/

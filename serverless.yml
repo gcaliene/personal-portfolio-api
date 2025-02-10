@@ -1,51 +1,42 @@
-service: personal-portfolio-api
+service: article-api
 
 provider:
   name: aws
   runtime: python3.9
   region: us-east-2
   environment:
-    DATABASE_URL: ${env:DATABASE_URL}
-    SECRET_KEY: ${env:SECRET_KEY}
+    STAGE: ${opt:stage, 'dev'}
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!frontend/**'
+    - '!.git/**'
+    - '!.env'
+    - '!.env.*'
+    - '!docker*'
+    - '!*.db'
+    - '!tests/**'
 
 functions:
-  app:
+  api:
     handler: main.handler
     events:
-      - http:
-          path: /
-          method: get
-      - http:
-          path: /health
-          method: get
-      - http:
-          path: /databases
-          method: get
-      - http:
-          path: /schemas
-          method: get
-      - http:
-          path: /tables
-          method: get
-      - http:
-          path: /article
-          method: post
-      - http:
-          path: /article/{url}
-          method: get
-      - http:
-          path: /article/{url}
-          method: put
-      - http:
-          path: /article/{url}
-          method: delete
-      - http:
-          path: /articles/latest
-          method: get
+      - httpApi:
+          path: /{proxy+}
+          method: '*'
+    environment:
+      PYTHONPATH: /var/task
+    timeout: 30
+    memorySize: 256
 
 plugins:
   - serverless-python-requirements
 
 custom:
   pythonRequirements:
-    dockerizePip: true
+    layer:
+      name: python-deps
+      description: Python dependencies for article API
+    noDeploy:
+      - sqlite3  # Already included in Lambda runtime
