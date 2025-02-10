@@ -1,0 +1,8 @@
+{
+  "name": "personal-portfolio-api",
+  "version": "1.0.0",
+  "description": "API for personal portfolio",
+  "devDependencies": {
+    "serverless-python-requirements": "^6.0.0"
+  }
+} 
