@@ -21,6 +21,13 @@ Parameters:
       - prod
 
 Resources:
+  TokenAuthorizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src.authorizer.handler
+      Runtime: python3.9
+
   ArticleApi:
     Type: AWS::Serverless::Function
     Properties:
@@ -28,11 +35,41 @@ Resources:
       Handler: main.handler
       Runtime: python3.9
       Events:
-        ApiEvent:
-          Type: HttpApi
+        ReadArticles:
+          Type: Api
           Properties:
-            Path: /{proxy+}
-            Method: ANY
+            Path: /articles
+            Method: GET
+            Auth:
+              Authorizer: TokenAuthorizer
+        ReadArticle:
+          Type: Api
+          Properties:
+            Path: /articles/{proxy+}
+            Method: GET
+            Auth:
+              Authorizer: TokenAuthorizer
+        WriteArticles:
+          Type: Api
+          Properties:
+            Path: /articles
+            Method: POST
+            Auth:
+              Authorizer: TokenAuthorizer
+        UpdateArticles:
+          Type: Api
+          Properties:
+            Path: /articles/{proxy+}
+            Method: PUT
+            Auth:
+              Authorizer: TokenAuthorizer
+        DeleteArticles:
+          Type: Api
+          Properties:
+            Path: /articles/{proxy+}
+            Method: DELETE
+            Auth:
+              Authorizer: TokenAuthorizer
       Policies:
         - AWSLambdaBasicExecutionRole
       Environment:
@@ -42,4 +79,4 @@ Resources:
 Outputs:
   ApiUrl:
     Description: API Gateway endpoint URL
-    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com" 
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Stage}" 
