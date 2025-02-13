@@ -37,6 +37,7 @@ async def fetch_webpage_source(
     This will:
     * Fetch the webpage from the given URL
     * Extract the title
+    * Calculate the content size
     * Store the content in the database
     * Return the stored webpage with headers and status code
 
@@ -52,6 +53,7 @@ async def fetch_webpage_source(
                 url=existing_webpage.url,
                 title=existing_webpage.title,
                 source=existing_webpage.source,
+                size=existing_webpage.size,
                 created_at=existing_webpage.created_at,
                 status_code=200,
                 headers={}
@@ -67,7 +69,8 @@ async def fetch_webpage_source(
         webpage_create = WebpageSourceCreate(
             url=request.url,
             title=title,
-            source=response.text
+            source=response.text,
+            size=len(response.text.encode('utf-8'))
         )
         
         db_webpage = webpage_service.create_webpage_source(webpage_create)
@@ -76,6 +79,7 @@ async def fetch_webpage_source(
             url=db_webpage.url,
             title=db_webpage.title,
             source=db_webpage.source,
+            size=db_webpage.size,
             created_at=db_webpage.created_at,
             status_code=response.status_code,
             headers=dict(response.headers)

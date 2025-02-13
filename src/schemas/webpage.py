@@ -6,6 +6,7 @@ class WebpageSourceBase(BaseModel):
     url: str
     title: Optional[str] = None
     source: str
+    size: int
 
 class WebpageSourceCreate(WebpageSourceBase):
     created_at: Optional[datetime] = None

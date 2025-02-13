@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from src.api import articles, webpages
-from src.database import engine, Base
+from src.database import engine, Base, init_db
 import logging
 
 # Configure logging
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    Base.metadata.create_all(bind=engine)
+    init_db()
     yield
     # Shutdown
     pass

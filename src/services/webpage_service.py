@@ -4,6 +4,7 @@ from src.schemas.webpage import WebpageSourceCreate
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
+import sys
 
 class WebpageService:
     def __init__(self, db: Session):
@@ -14,6 +15,7 @@ class WebpageService:
             url=webpage.url,
             title=webpage.title,
             source=webpage.source,
+            size=len(webpage.source.encode('utf-8')),  # Size in bytes
             created_at=webpage.created_at or datetime.utcnow()
         )
         self.db.add(db_webpage)
