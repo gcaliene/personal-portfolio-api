@@ -18,8 +18,15 @@ class ArticleCreate(ArticleBase):
     updated_by: str
     deleted_at: Optional[datetime] = None
     deleted_by: Optional[str] = None
-    created_at: datetime = datetime.utcnow()
-    updated_at: datetime = datetime.utcnow()
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+
+    @field_validator('created_at', 'updated_at')
+    @classmethod
+    def set_datetime(cls, v):
+        if v is None:
+            return datetime.utcnow()
+        return v
 
 class ArticleUpdate(BaseModel):
     url: Optional[str] = None
