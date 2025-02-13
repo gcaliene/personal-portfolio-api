@@ -1,12 +1,11 @@
-from sqlalchemy import Column, String, Text, DateTime, Integer
-from src.database import Base
-from datetime import datetime
+from sqlalchemy import Column, String, Text, Integer, DateTime
+from .base import Base
 
 class WebpageSource(Base):
     __tablename__ = "webpage_sources"
-
+    
     url = Column(String, primary_key=True, index=True)
-    title = Column(String, nullable=True)
+    title = Column(String)
     source = Column(Text, nullable=False)
-    size = Column(Integer, nullable=False)  # Size in bytes
-    created_at = Column(DateTime, default=datetime.utcnow) 
+    size = Column(Integer, nullable=False)
+    created_at = Column(DateTime) 
