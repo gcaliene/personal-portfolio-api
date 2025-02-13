@@ -8,3 +8,7 @@ Python - Fast API - AWS Lambda
 
 ## Local Development without SAM
 #### Run the application: ```uvicorn main:app --reload```
+
+## Package Management
+#### Update packages: ```pip install -r requirements.txt --upgrade```
+#### Install packages: ```pip install -r requirements.txt```
