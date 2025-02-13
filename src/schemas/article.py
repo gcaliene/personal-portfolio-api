@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, Dict, List
+from datetime import datetime
 
 class ArticleBase(BaseModel):
     url: str
@@ -15,8 +16,10 @@ class ArticleBase(BaseModel):
 class ArticleCreate(ArticleBase):
     created_by: str
     updated_by: str
-    deleted_at: Optional[str] = None
+    deleted_at: Optional[datetime] = None
     deleted_by: Optional[str] = None
+    created_at: datetime = datetime.utcnow()
+    updated_at: datetime = datetime.utcnow()
 
 class ArticleUpdate(BaseModel):
     url: Optional[str] = None
@@ -29,14 +32,29 @@ class ArticleUpdate(BaseModel):
     tags: Optional[List[str]] = None
     status: Optional[str] = None
     updated_by: Optional[str] = None
-    deleted_at: Optional[str] = None
+    deleted_at: Optional[datetime] = None
     deleted_by: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
 class ArticleInDB(ArticleBase):
     created_by: str
+    created_at: datetime
     updated_by: str
-    deleted_at: Optional[str]
+    updated_at: datetime
+    deleted_at: Optional[datetime]
     deleted_by: Optional[str]
+
+    @field_validator('created_at', 'updated_at', 'deleted_at')
+    @classmethod
+    def validate_datetime(cls, v):
+        if v is None or v == 'string' or v == '':
+            return None
+        if isinstance(v, str):
+            try:
+                return datetime.fromisoformat(v)
+            except ValueError:
+                return None
+        return v
 
     class Config:
         from_attributes = True 
