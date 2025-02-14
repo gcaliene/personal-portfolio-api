@@ -8,8 +8,7 @@ When given a webpage source, please:
    - Main content sections
    - Author
    - date
-   - Category and subcategory
-   - Relevant tags
+   - Category, subcategory, tags
 
 2. Format the content into a structured article with:
    - Introduction 
@@ -21,7 +20,7 @@ When given a webpage source, please:
        ```
        class="code-block" style="background: #f6f8fa; padding: 16px; border-radius: 6px; margin: 16px 0; overflow-x: auto;"
        ```
-   - A concluding paragraph (without a heading) using the same paragraph styling
+   - A headless concluding paragraph
 
 3. Structure the output as a JSON object following this schema:
 ```json
@@ -47,9 +46,6 @@ When given a webpage source, please:
 ```
 
 4. Important formatting notes:
-   - All HTML in main_content should be properly escaped
-   - Code examples should use &lt; and &gt; for < and >
-   - Remove any DOCTYPE, html, head, or body tags
    - Wrap content in an article tag with class="max-w-4xl mx-auto"
    - Use consistent spacing and indentation in the JSON output
 

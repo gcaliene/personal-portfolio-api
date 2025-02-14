@@ -139,8 +139,8 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
     # First try to get existing summary
     summarization_service = SummarizationService(db)
     existing_summary = summarization_service.get_latest_summary_content(webpage.url)
-    
     if existing_summary:
+        print('existing_summary. url: ', existing_summary.get('url', webpage.url))
         # Create article directly from the JSON summary
         article = Article(
             url=existing_summary.get('url', webpage.url),
@@ -156,6 +156,7 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
             updated_by=existing_summary.get('updated_by', 'system')
         )
     else:
+        print('no existing summary. generating new one...')
         # Generate new summary if none exists
         anthropic_service = AnthropicService()
         summary = anthropic_service.summarize_text(webpage.source, webpage.url, db)
