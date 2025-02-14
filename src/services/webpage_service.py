@@ -11,17 +11,36 @@ class WebpageService:
         self.db = db
 
     def create_webpage_source(self, webpage: WebpageSourceCreate) -> WebpageSource:
+        # Clean the source HTML before storing
+        cleaned_source = self.clean_html_content(webpage.source)
+        
         db_webpage = WebpageSource(
             url=webpage.url,
             title=webpage.title,
-            source=webpage.source,
-            size=len(webpage.source.encode('utf-8')),  # Size in bytes
+            source=cleaned_source,
+            size=len(cleaned_source.encode('utf-8')),  # Size in bytes
             created_at=webpage.created_at or datetime.utcnow()
         )
         self.db.add(db_webpage)
         self.db.commit()
         self.db.refresh(db_webpage)
         return db_webpage
+
+    @staticmethod
+    def clean_html_content(html_content: str) -> str:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Remove all script tags
+        for script in soup.find_all('script'):
+            script.decompose()
+            
+        # Remove all style tags
+        for style in soup.find_all('style'):
+            style.decompose()
+            
+        # Get the cleaned text content
+        cleaned_text = ' '.join(soup.stripped_strings)
+        return cleaned_text
 
     def get_webpage_source(self, url: str) -> WebpageSource:
         return self.db.query(WebpageSource).filter(WebpageSource.url == url).first()

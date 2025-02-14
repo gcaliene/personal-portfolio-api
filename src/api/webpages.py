@@ -4,6 +4,13 @@ from src.schemas.webpage import WebpageSourceRequest, WebpageSourceResponse, Web
 from src.services.webpage_service import WebpageService
 from src.database import get_db
 from typing import Optional
+from src.services.anthropic_service import AnthropicService
+from src.models.article import Article
+from src.models.webpage import WebpageSource
+from datetime import datetime
+from sqlalchemy import func
+from src.schemas.summarization import SummarizationMessageResponse, SummarizationMessageCreate
+from src.services.summarization_service import SummarizationService
 
 router = APIRouter(
     prefix="/webpages",
@@ -121,4 +128,94 @@ async def get_stored_webpage(
         created_at=webpage.created_at,
         status_code=200,
         headers={}
-    ) 
+    )
+
+@router.post("/summarize", response_model=dict)
+async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends(get_db)):
+    webpage = db.query(WebpageSource).filter(WebpageSource.url == request.url).first()
+    if not webpage:
+        raise HTTPException(status_code=404, detail="Webpage not found")
+
+    anthropic_service = AnthropicService()
+    summary = anthropic_service.summarize_text(webpage.source, webpage.url, db)
+    
+    if not summary:
+        raise HTTPException(status_code=500, detail="Failed to generate summary")
+
+    # Create new article from summary
+    article = Article(
+        url=webpage.url,
+        version=1,
+        sort_order=1,
+        type="summary",
+        content=summary,
+        category="web_summaries",
+        subcategory="auto_generated",
+        tags=["summary", "ai_generated"],
+        status="published",
+        created_by="system",
+        updated_by="system"
+    )
+    
+    db.add(article)
+    db.commit()
+    db.refresh(article)
+
+    return {"message": "Summary created successfully", "article_id": article.url}
+
+@router.post("/summarizations", response_model=list[SummarizationMessageResponse])
+async def get_webpage_summarizations(
+    request: WebpageSourceRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all summarization attempts for a webpage.
+    
+    Request Body:
+    * url: The URL of the webpage to retrieve summarizations for
+    
+    Returns:
+    * List of summarization messages with their prompts, responses, and token usage
+    """
+    summarization_service = SummarizationService(db)
+    messages = summarization_service.get_messages_for_webpage(request.url)
+    
+    if not messages:
+        raise HTTPException(status_code=404, detail="No summarizations found for this webpage")
+        
+    return messages
+
+@router.post("/summarizations/store", response_model=SummarizationMessageResponse)
+async def store_summarization_message(
+    message: SummarizationMessageCreate,
+    db: Session = Depends(get_db)
+):
+    """
+    Store a new summarization message.
+    
+    Request Body:
+    * webpage_url: URL of the webpage
+    * prompt: The prompt used
+    * response: The response from the model
+    * model: Model name used
+    * tokens_used: Number of tokens used
+    """
+    summarization_service = SummarizationService(db)
+    stored_message = summarization_service.create_message(message)
+    return stored_message
+
+@router.post("/summarizations/{message_id}", response_model=SummarizationMessageResponse)
+async def get_summarization_message(
+    message_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get a specific summarization message by ID.
+    """
+    summarization_service = SummarizationService(db)
+    message = summarization_service.get_message_by_id(message_id)
+    
+    if not message:
+        raise HTTPException(status_code=404, detail="Summarization message not found")
+        
+    return message 
