@@ -136,26 +136,52 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
     if not webpage:
         raise HTTPException(status_code=404, detail="Webpage not found")
 
-    anthropic_service = AnthropicService()
-    summary = anthropic_service.summarize_text(webpage.source, webpage.url, db)
+    # First try to get existing summary
+    summarization_service = SummarizationService(db)
+    existing_summary = summarization_service.get_latest_summary_content(webpage.url)
     
-    if not summary:
-        raise HTTPException(status_code=500, detail="Failed to generate summary")
-
-    # Create new article from summary
-    article = Article(
-        url=webpage.url,
-        version=1,
-        sort_order=1,
-        type="summary",
-        content=summary,
-        category="web_summaries",
-        subcategory="auto_generated",
-        tags=["summary", "ai_generated"],
-        status="published",
-        created_by="system",
-        updated_by="system"
-    )
+    if existing_summary:
+        # Create article directly from the JSON summary
+        article = Article(
+            url=existing_summary.get('url', webpage.url),
+            version=existing_summary.get('version', 1),
+            sort_order=existing_summary.get('sort_order', 1),
+            type=existing_summary.get('type', 'summary'),
+            content=existing_summary.get('content', ''),
+            category=existing_summary.get('category', 'web_summaries'),
+            subcategory=existing_summary.get('subcategory', 'auto_generated'),
+            tags=existing_summary.get('tags', ["summary", "ai_generated"]),
+            status=existing_summary.get('status', 'published'),
+            created_by=existing_summary.get('created_by', 'system'),
+            updated_by=existing_summary.get('updated_by', 'system')
+        )
+    else:
+        # Generate new summary if none exists
+        anthropic_service = AnthropicService()
+        summary = anthropic_service.summarize_text(webpage.source, webpage.url, db)
+        
+        if not summary:
+            raise HTTPException(status_code=500, detail="Failed to generate summary")
+            
+        # Try to get the newly created summary
+        existing_summary = summarization_service.get_latest_summary_content(webpage.url)
+        if not existing_summary:
+            raise HTTPException(status_code=500, detail="Failed to retrieve generated summary")
+            
+        # Create article from the newly generated summary
+        article = Article(
+            url=existing_summary.get('url', webpage.url),
+            version=existing_summary.get('version', 1),
+            sort_order=existing_summary.get('sort_order', 1),
+            type=existing_summary.get('type', 'summary'),
+            content=existing_summary.get('content', ''),
+            category=existing_summary.get('category', 'web_summaries'),
+            subcategory=existing_summary.get('subcategory', 'auto_generated'),
+            tags=existing_summary.get('tags', ["summary", "ai_generated"]),
+            status=existing_summary.get('status', 'published'),
+            created_by=existing_summary.get('created_by', 'system'),
+            updated_by=existing_summary.get('updated_by', 'system')
+        )
     
     db.add(article)
     db.commit()
