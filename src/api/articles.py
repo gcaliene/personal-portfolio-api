@@ -69,6 +69,7 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
     - created_by: Author of the article
     - updated_by: Last person to update the article
     """
+    print("Received article data:", article.model_dump())  # Add this line for debugging
     article_service = ArticleService(db)
     return article_service.create_article(article)
 

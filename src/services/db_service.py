@@ -7,7 +7,6 @@ class DatabaseService:
     def __init__(self, db_url: str):
         self.engine = create_engine(db_url, connect_args={"check_same_thread": False})
         self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-        Base.metadata.create_all(bind=self.engine)
     
     def get_session(self):
         db = self.SessionLocal()
