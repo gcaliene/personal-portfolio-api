@@ -7,6 +7,10 @@ def format_url_slug(title: str) -> str:
     """
     # Convert to lowercase
     slug = title.lower()
+    slug = slug.replace('https://', '')
+    slug = slug.replace('http://', '')
+    slug = slug.replace('www.', '')
+    slug = slug.replace('/', '-')
     # Remove special characters and replace spaces with hyphens
     slug = re.sub(r'[^a-z0-9\s-]', '', slug)
     # Replace spaces with hyphens

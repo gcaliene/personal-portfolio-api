@@ -46,7 +46,7 @@ class SummarizationService:
             json_str = content_text[start_idx:]
             # First handle the HTML content by escaping quotes in HTML attributes
             json_str = json_str.replace('\n', '')
-            json_str = json_str.replace(' ', '')
+            # json_str = json_str.replace(' ', '')
             # print('processed json_str: ', json_str)
             return json.loads(json_str)
         except Exception as e:

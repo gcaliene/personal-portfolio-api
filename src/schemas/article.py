@@ -4,6 +4,7 @@ from datetime import datetime
 
 class ArticleBase(BaseModel):
     url: str
+    source_url: str
     version: int
     sort_order: int
     type: str
@@ -30,6 +31,7 @@ class ArticleCreate(ArticleBase):
 
 class ArticleUpdate(BaseModel):
     url: Optional[str] = None
+    source_url: Optional[str] = None
     version: Optional[int] = None
     sort_order: Optional[int] = None
     type: Optional[str] = None
