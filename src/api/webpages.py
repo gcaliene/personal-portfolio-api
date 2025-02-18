@@ -147,6 +147,7 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
             source_url=webpage.url,
             url=format_url_slug(webpage.url),
             version=existing_summary.get('version', 1),
+            title=existing_summary.get('title', webpage.title),
             sort_order=existing_summary.get('sort_order', 1),
             type=existing_summary.get('type', 'summary'),
             content=existing_summary.get('content', ''),
@@ -174,7 +175,9 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
         # Create article from the newly generated summary
         article = Article(
             source_url=webpage.url,
-            url=format_url_slug(webpage.url),            version=existing_summary.get('version', 1),
+            url=format_url_slug(webpage.url),
+            version=existing_summary.get('version', 1),
+            title=existing_summary.get('title', webpage.title),
             sort_order=existing_summary.get('sort_order', 1),
             type=existing_summary.get('type', 'summary'),
             content=existing_summary.get('content', ''),

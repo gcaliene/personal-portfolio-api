@@ -3,6 +3,7 @@ from src.models.summarization import SummarizationMessage
 from src.schemas.summarization import SummarizationMessageCreate
 from typing import Optional
 import json
+import re
 
 class SummarizationService:
     def __init__(self, db: Session):
@@ -43,9 +44,22 @@ class SummarizationService:
             if start_idx == -1:
                 return None
                 
+        # Find the first closing brace after "updated_by" field
             json_str = content_text[start_idx:]
+            updated_by_idx = json_str.find('"updated_by"')
+            if updated_by_idx == -1:
+                return None
+            
+            end_idx = json_str.find('}', updated_by_idx)
+            if end_idx == -1:
+                return None
+                
+            json_str = json_str[:end_idx + 1]  
+            print('json_str: ', json_str)
             # First handle the HTML content by escaping quotes in HTML attributes
             json_str = json_str.replace('\n', '')
+            json_str = json_str.replace('  ', ' ')
+
             # json_str = json_str.replace(' ', '')
             # print('processed json_str: ', json_str)
             return json.loads(json_str)

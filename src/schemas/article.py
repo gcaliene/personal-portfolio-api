@@ -5,6 +5,7 @@ from datetime import datetime
 class ArticleBase(BaseModel):
     url: str
     source_url: str
+    title: Optional[str] = None
     version: int
     sort_order: int
     type: str
@@ -65,5 +66,12 @@ class ArticleInDB(ArticleBase):
                 return None
         return v
 
+    class Config:
+        from_attributes = True
+
+class ArticleUrlTitle(BaseModel):
+    url: str
+    title: str
+    
     class Config:
         from_attributes = True 

@@ -4,6 +4,8 @@ from fastapi import HTTPException
 import logging
 from src.models import Article
 from src.schemas.article import ArticleCreate, ArticleUpdate
+import json
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -13,6 +15,12 @@ class ArticleService:
 
     def create_article(self, article: ArticleCreate) -> Article:
         try:
+            # Extract title from content if it exists
+            if article.content and isinstance(article.content, dict):
+                # Get title from content if available
+                if 'title' in article.content:
+                    article.title = article.content['title']
+            
             db_article = Article(**article.dict())
             self.db.add(db_article)
             self.db.commit()
@@ -68,4 +76,20 @@ class ArticleService:
                 .all()
         except Exception as e:
             logger.error(f"Error retrieving latest articles: {str(e)}")
-            raise 
+            raise
+
+    def get_urls_and_titles(self, limit: int = 100):
+        """
+        Get URLs and titles of the most recent articles.
+        
+        Args:
+            limit: Maximum number of articles to return
+            
+        Returns:
+            List of articles with just URL and title
+        """
+        return self.db.query(Article.url, Article.title)\
+            .filter(Article.deleted_at.is_(None))\
+            .order_by(Article.created_at.desc())\
+            .limit(limit)\
+            .all() 
