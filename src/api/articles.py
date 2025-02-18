@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from src.schemas.article import ArticleCreate, ArticleUpdate, ArticleInDB
+from src.schemas.article import ArticleCreate, ArticleUpdate, ArticleInDB, ArticleUrlTitle
 from src.services.article_service import ArticleService
 from src.database import get_db
 from typing import List
@@ -73,6 +73,15 @@ def create_article(article: ArticleCreate, db: Session = Depends(get_db)):
     article_service = ArticleService(db)
     return article_service.create_article(article)
 
+@router.get("/url-titles", response_model=List[ArticleUrlTitle])
+def get_article_urls_and_titles(db: Session = Depends(get_db)):
+    """
+    Get URLs and titles of up to 100 most recent articles.
+    Returns a list of articles with just their URLs and titles.
+    """
+    article_service = ArticleService(db)
+    return article_service.get_urls_and_titles(limit=100) 
+
 @router.get("/{url}", response_model=ArticleInDB)
 def get_article(url: str, db: Session = Depends(get_db)):
     """
@@ -96,4 +105,5 @@ def delete_article(url: str, db: Session = Depends(get_db)):
     Delete an article by its URL.
     """
     article_service = ArticleService(db)
-    return article_service.delete_article(url) 
+    return article_service.delete_article(url)
+
