@@ -11,7 +11,7 @@ from datetime import datetime
 from sqlalchemy import func
 from src.schemas.summarization import SummarizationMessageResponse, SummarizationMessageCreate
 from src.services.summarization_service import SummarizationService
-
+from src.utils.string_utils import format_url_slug
 router = APIRouter(
     prefix="/webpages",
     tags=["webpages"],
@@ -139,11 +139,13 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
     # First try to get existing summary
     summarization_service = SummarizationService(db)
     existing_summary = summarization_service.get_latest_summary_content(webpage.url)
+    print('existing_summary: ', existing_summary, webpage.url)
     if existing_summary:
-        print('existing_summary. url: ', existing_summary.get('url', webpage.url))
+        print('existing_summary.url: ', existing_summary.get('url', webpage.url))
         # Create article directly from the JSON summary
         article = Article(
-            url=existing_summary.get('url', webpage.url),
+            source_url=webpage.url,
+            url=format_url_slug(webpage.url),
             version=existing_summary.get('version', 1),
             sort_order=existing_summary.get('sort_order', 1),
             type=existing_summary.get('type', 'summary'),
@@ -171,8 +173,8 @@ async def summarize_webpage(request: WebpageSourceRequest, db: Session = Depends
             
         # Create article from the newly generated summary
         article = Article(
-            url=existing_summary.get('url', webpage.url),
-            version=existing_summary.get('version', 1),
+            source_url=webpage.url,
+            url=format_url_slug(webpage.url),            version=existing_summary.get('version', 1),
             sort_order=existing_summary.get('sort_order', 1),
             type=existing_summary.get('type', 'summary'),
             content=existing_summary.get('content', ''),

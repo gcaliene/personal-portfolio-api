@@ -23,6 +23,7 @@ class SummarizationService:
 
     def get_latest_summary_content(self, webpage_url: str) -> Optional[dict]:
         """Get the latest summary content for a webpage."""
+        print('getting latest summary content for: ', webpage_url)
         message = self.db.query(SummarizationMessage)\
             .filter(SummarizationMessage.webpage_url == webpage_url)\
             .order_by(SummarizationMessage.created_at.desc())\
@@ -34,14 +35,19 @@ class SummarizationService:
         try:
             # Get the content from the response
             response = message.response
+            # print('response: ', response)
             content_text = response.get('content', [])[0].get('text', '')
-            
             # Find the JSON object in the content text
             start_idx = content_text.find('{')
+            print('start_idx: ', start_idx)
             if start_idx == -1:
                 return None
                 
             json_str = content_text[start_idx:]
+            # First handle the HTML content by escaping quotes in HTML attributes
+            json_str = json_str.replace('\n', '')
+            # json_str = json_str.replace(' ', '')
+            # print('processed json_str: ', json_str)
             return json.loads(json_str)
         except Exception as e:
             print(f"Error parsing summary content: {e}")

@@ -5,6 +5,7 @@ class Article(Base):
     __tablename__ = "articles"
 
     url = Column(String, primary_key=True, index=True)
+    source_url = Column(String, nullable=False)
     version = Column(Integer)
     sort_order = Column(Integer)
     type = Column(String)

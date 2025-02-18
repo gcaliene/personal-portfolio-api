@@ -28,7 +28,7 @@ connect_args = {"check_same_thread": False} if DATABASE_URL.startswith('sqlite')
 engine = create_engine(
     DATABASE_URL,
     connect_args=connect_args,
-    echo=True  # Set to True for debugging SQL queries
+    echo=False  # Set to True for debugging SQL queries
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
