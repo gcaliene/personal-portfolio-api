@@ -12,4 +12,7 @@ venv/
 .serverless/
 .github/
 README.md
-*.md 
+*.md
+.pytest_cache
+.coverage
+htmlcov 
