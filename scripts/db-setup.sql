@@ -2,7 +2,7 @@ DO $$
 BEGIN
 CREATE SCHEMA IF NOT EXISTS portfolio;
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'portfolio' AND table_name = 'articles') THEN
-CREATE TABLE portfolio.articles (
+CREATE TABLE IF NOT EXISTS portfolio.articles (
     id SERIAL PRIMARY KEY,
     url VARCHAR(255) UNIQUE,
     version INT,
