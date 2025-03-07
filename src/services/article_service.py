@@ -69,8 +69,10 @@ class ArticleService:
             raise
 
     def get_latest_articles(self, limit: int = 10) -> list[Article]:
+        print("Getting latest articles")
         try:
             return self.db.query(Article)\
+                .filter(Article.deleted_at.is_(None))\
                 .order_by(Article.created_at.desc())\
                 .limit(limit)\
                 .all()

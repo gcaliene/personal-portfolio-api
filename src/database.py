@@ -2,7 +2,6 @@ import os
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
 import logging
 from src.config import DATABASE_URL
 
@@ -10,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 Base = declarative_base()
 
-load_dotenv()
 
 STAGE = os.getenv("STAGE", "dev")
 
